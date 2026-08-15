@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+<h2>Your Cart</h2>
+
+<!-- Message block -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert-danger alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if cart_items %}
+<form method="post" action="{% url 'update_cart' %}">
+    {% csrf_token %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>₹{{ item.product.price }}</td>
+                <td>
+                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1"
+                        max="{{ item.product.stock }}" class="form-control" style="width: 80px;">
+                </td>
+                <td>₹{{ item.subtotal }}</td>
+                <td>
+                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between">
+        {% if user.is_authenticated %}
+        <button type="submit" class="btn btn-warning">Update Cart</button>
+        <a href="{% url 'checkout' %}" class="btn btn-success">Place Order</a>
+        {% else %}
+        <a href="{% url 'login' %}?next={% url 'view_cart' %}" class="btn btn-primary">Login to Place Order</a>
+        {% endif %}
+    </div>
+</form>
+
+<h4 class="text-end mt-3">Total: ₹{{ total_price }}</h4>
+{% else %}
+<p>Your cart is empty.</p>
+{% endif %}
+{% endblock %}

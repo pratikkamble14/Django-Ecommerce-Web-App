@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ form.instance.pk|yesno:"Edit Address,Add Address" }}{% endblock %}
+{% block content %}
+{% if messages %}
+  <div class="mt-3">
+    {% for message in messages %}
+      <div class="alert alert-info alert-dismissible fade show shadow-sm d-flex align-items-center" role="alert">
+        <i class="bi bi-info-circle-fill me-2 fs-5 text-info"></i>
+        <div>{{ message }}</div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+<h2>{{ form.instance.pk|yesno:"Edit Address,Add Address" }}</h2>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Save</button>
+  <a href="{% url 'address_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

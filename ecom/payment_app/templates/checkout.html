@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <!-- Message block -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+    <h2>Checkout</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h4 class="mt-4">Order Summary//conform order</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.product.price }}</td>
+                    <td>₹{{ item.subtotal }}</td>
+
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td><strong>₹{{ total }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+    </form>
+</div>
+{% endblock %}
