@@ -1,8 +1,7 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: pratik140404/myapp:latest
+    pull_policy: always
 
     ports:
       - "8000:8000"
