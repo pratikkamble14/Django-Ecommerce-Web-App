@@ -1,8 +1,6 @@
 # product_app/views.py
 
-from django.shortcuts import render, redirect
-from .models import Product, Category
-
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Category
 
 def product_list(request):
@@ -29,7 +27,7 @@ def product_list(request):
 def product_detail(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')  # your login view name
-    product = Product.objects.get(pk=pk)
+    product = get_object_or_404(Product, pk=pk)
     return render(request, template_name='product_detail.html',context={'product': product})
 
 def category_list(request):

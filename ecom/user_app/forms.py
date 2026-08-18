@@ -8,4 +8,14 @@ class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['name','username','email','password']
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.first_name = self.cleaned_data.get('name', '')
+        if commit:
+            user.save()
+        return user
 

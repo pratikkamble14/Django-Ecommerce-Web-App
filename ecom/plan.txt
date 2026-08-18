@@ -1,0 +1,78 @@
+=========================================================================
+TEST PLAN + BUG FIXES — Django Ecommerce App (ecom)
+=========================================================================
+Goal      : Secure and stabilize the app with a passing, compatible
+            test suite (Django built-in TestCase, in-memory SQLite).
+Scope     : CORE focus = payment flow, cart logic, authentication.
+            Light = address_app & order_app CRUD, product_app views.
+            Tests must PASS against fixed code.
+
+Current   : All 7 tests.py files are EMPTY (zero coverage).
+            Multiple runtime bugs block testing.
+
+=========================================================================
+PHASE 1 — FIX BLOCKING BUGS (so tests can pass)
+=========================================================================
+1. order_app: create missing template order_form.html
+   (form fields: address, city, postal_code; extends base.html).
+2. order_app/templatetags/: add __init__.py + custom_filters.py
+   with a 'subtotal' filter (order_summary.html loads it).
+   order_summary view: compute item.subtotal for each item.
+3. user_app: fix UserRegistrationForm
+   - add widget=PasswordInput (password not plaintext).
+   - stop silently discarding 'name' (map to first_name OR drop field).
+4. payment_app/order_app: make payment_success idempotent;
+   keep stock-decrement + session cleanup consistent.
+
+=========================================================================
+PHASE 2 — TEST SUITE (Django TestCase)
+=========================================================================
+CORE (full depth):
+- user_app
+    * register: GET renders 200; POST creates user, hashes password,
+      redirects to login; invalid/duplicate data re-renders form.
+    * login: success redirects to product_list; wrong creds rejected.
+    * logout: logs out, redirects to login.
+- cart_app
+    * get_or_create_cart: authenticated (by user) vs guest (by session).
+    * add_to_cart: new item; increment existing quantity.
+    * view_cart: per-item subtotal + total_price correct.
+    * update_cart: stock decrement; rejects qty > stock with error.
+    * remove_from_cart: removes item, redirects.
+- payment_app (END-TO-END happy path)
+    * checkout: creates unpaid Order + OrderItems, snapshots price,
+      decrements stock, clears cart, stores session order_id.
+    * payment: sets Order.paid=True, clears session order_id.
+    * payment_success: idempotent, confirms paid order.
+
+SECURITY / ISOLATION (embedded):
+- All @login_required views redirect unauthenticated users.
+- Ownership isolation: user A cannot view/update/delete user B's
+  order/address (expect 404 or 403).
+- CSRF: forms include tokens; POST without token is rejected.
+
+LIGHT (smoke-level):
+- address_app: create / list / update / delete own address +
+  ownership isolation.
+- order_app: create_order (after fix), my_orders scoped to user,
+  delete_order POST-only + owner-only.
+- product_app: product_list category + q filters; product_detail
+  login redirect + 404 on missing pk.
+- URL tests: every named route resolves to correct view.
+
+=========================================================================
+PHASE 3 — VERIFICATION
+=========================================================================
+1. python manage.py test            -> all tests pass.
+2. python manage.py check           -> no config errors.
+3. Summarize coverage; optionally add coverage.py for a % metric.
+
+=========================================================================
+SUGGESTED ADDITIONS (not in scope unless approved)
+=========================================================================
+- Remove dead category_app (not in INSTALLED_APPS).
+- Clean redundant cart URL /cart/cart/ -> /cart/.
+- Remove stray duplicate lines 135-136 in settings.py.
+- Production hardening (NOT test cases, but recommended):
+  env-based SECRET_KEY, DEBUG=False, ALLOWED_HOSTS, SECURE_* headers.
+=========================================================================

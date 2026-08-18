@@ -132,5 +132,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
-'django.contrib.messages',
-'django.contrib.messages.middleware.MessageMiddleware',
+LOGIN_URL = 'login'
+
+
+# Use a fast password hasher during tests to keep the suite performant.
+# PBKDF2 (the default) is intentionally slow (~5s/hash on this machine).
+import sys
+if 'test' in sys.argv:
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]

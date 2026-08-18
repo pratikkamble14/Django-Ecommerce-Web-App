@@ -43,6 +43,9 @@ def create_order(request):
     else:
         form = OrderForm()
 
+    for item in cart_items:
+        item.subtotal = item.product.price * item.quantity
+
     return render(request, 'order_form.html', {
         'form': form,
         'cart_items': cart_items,
@@ -54,6 +57,8 @@ def create_order(request):
 def order_summary(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     items = order.items.all()
+    for item in items:
+        item.subtotal = item.price * item.quantity
     total = sum(item.price * item.quantity for item in items)
     return render(request, 'order_summary.html', {
         'order': order,
