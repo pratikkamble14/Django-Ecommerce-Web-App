@@ -6,54 +6,63 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo 'Checking out code...'
-                checkout scm
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
+                dir('ecom') {
+                    sh '''
+                        echo "Working directory:"
+                        pwd
 
-                    echo 'Installing dependencies...'
-                    pip install -r ecom/requirements.txt
-                '''
+                        echo "Creating Python virtual environment..."
+
+                        python3 -m venv venv
+
+                        echo "Installing dependencies..."
+
+                        . venv/bin/activate
+
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
+                }
             }
         }
 
         stage('Test') {
             steps {
-                sh '''
-                    . venv/bin/activate
+                dir('ecom') {
+                    sh '''
+                        echo "Running Django tests..."
 
-                    echo 'Running Django tests...'
-                    python3 manage.py test
-                '''
+                        . venv/bin/activate
+
+                        python3 manage.py test
+                    '''
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh '''
-                    echo "Building Docker image..."
+                dir('ecom') {
+                    sh '''
+                        echo "Building Docker image..."
 
-                    docker build -t myapp:latest .
+                        docker build -t myapp:latest .
 
-                    docker tag myapp:latest pratikkamble14/myapp:latest
+                        echo "Stopping old containers..."
 
-                    echo "Stopping old containers..."
-                    docker compose down
+                        docker compose down
 
-                    echo "Starting new containers..."
-                    docker compose up -d
+                        echo "Starting new containers..."
 
-                    echo "Checking containers..."
-                    docker compose ps
-                '''
+                        docker compose up -d
+
+                        echo "Checking containers..."
+
+                        docker compose ps
+                    '''
+                }
             }
         }
     }
