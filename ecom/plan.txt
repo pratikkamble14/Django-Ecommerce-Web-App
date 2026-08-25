@@ -68,11 +68,4 @@ PHASE 3 — VERIFICATION
 3. Summarize coverage; optionally add coverage.py for a % metric.
 
 =========================================================================
-SUGGESTED ADDITIONS (not in scope unless approved)
-=========================================================================
-- Remove dead category_app (not in INSTALLED_APPS).
-- Clean redundant cart URL /cart/cart/ -> /cart/.
-- Remove stray duplicate lines 135-136 in settings.py.
-- Production hardening (NOT test cases, but recommended):
-  env-based SECRET_KEY, DEBUG=False, ALLOWED_HOSTS, SECURE_* headers.
-=========================================================================
+
