@@ -17,7 +17,7 @@ pipeline {
             steps {
                 sh '''
                     python3 -m venv venv
-                    source venv/bin/activate
+                    . venv/bin/activate
 
                     echo 'Installing dependencies...'
                     pip install -r requirements.txt
@@ -28,7 +28,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    source venv/bin/activate
+                    . venv/bin/activate
 
                     echo 'Running Django tests...'
                     python3 manage.py test
