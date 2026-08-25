@@ -1,7 +1,6 @@
 services:
   web:
-    image: pratik140404/myapp:latest
-    pull_policy: always
+    image: myapp:latest
 
     ports:
       - "8000:8000"

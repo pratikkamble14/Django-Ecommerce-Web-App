@@ -1,47 +1,65 @@
 pipeline {
-    agent any {
-        stages {
-            stage('Checkout') {
-                steps {
-                    echo 'Checking out code...'
-                    checkout scm
-                }
-            }
-            stage('Install Dependencies') {
-                steps {
+
+    agent {
+        label 'docker-agent'
+    }
+
+    stages {
+
+        stage('Install Dependencies') {
+            steps {
+                dir('ecom') {
                     sh '''
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    echo 'Installing dependencies...'
-                    pip install -r requirements.txt
+                        echo "Working directory:"
+                        pwd
+
+                        echo "Creating Python virtual environment..."
+
+                        python3 -m venv venv
+
+                        echo "Installing dependencies..."
+
+                        . venv/bin/activate
+
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
                     '''
                 }
             }
-            stage('Test') {
-                steps {
+        }
+
+        stage('Test') {
+            steps {
+                dir('ecom') {
                     sh '''
+                        echo "Running Django tests..."
+
                         . venv/bin/activate
+
                         python3 manage.py test
                     '''
-
                 }
             }
-            stage('Build') {
-                steps {
+        }
+
+        stage('Build') {
+            steps {
+                dir('ecom') {
                     sh '''
                         echo "Building Docker image..."
 
                         docker build -t myapp:latest .
 
-                        docker tag myapp:latest pratikkamble14/myapp:latest
-
                         echo "Stopping old containers..."
+
                         docker compose down
 
                         echo "Starting new containers..."
+
                         docker compose up -d
 
                         echo "Checking containers..."
+
                         docker compose ps
                     '''
                 }
