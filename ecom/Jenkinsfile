@@ -20,7 +20,7 @@ pipeline {
                     . venv/bin/activate
 
                     echo 'Installing dependencies...'
-                    pip install -r requirements.txt
+                    pip install -r ecom/requirements.txt
                 '''
             }
         }
